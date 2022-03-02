@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 const { Schema } = mongoose;
 
 const postSchema = new Schema({
+  userId: String,
   title: String,
   body: String,
   id: String,
