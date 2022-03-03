@@ -1,11 +1,16 @@
+/* eslint-disable no-unused-vars */
+import { validationResult } from 'express-validator';
 import User from '../models/user';
+import {
+  userRegistration, activateAccount, loginUser, logoutUser, updateToken,
+} from '../service/user';
 
 export const readUsers = async (req: any, res: any) => {
   try {
     const user = await User.find();
     res.status(200).json(user);
   } catch (error) {
-    res.status(404).json({ error });
+    res.status(400).json({ error });
   }
 };
 
@@ -15,7 +20,7 @@ export const createUser = async (req: any, res: any) => {
     await newUser.save();
     res.status(201).json(newUser);
   } catch (error) {
-    res.status(404).json({ error });
+    res.status(400).json({ error });
   }
 };
 
@@ -25,7 +30,7 @@ export const readTargetUser = async (req: any, res: any) => {
     const user = await User.findOne({ id: userId });
     res.status(200).json(user);
   } catch (error) {
-    res.status(404).json({ error });
+    res.status(400).json({ error });
   }
 };
 
@@ -35,6 +40,65 @@ export const editUser = async (req: any, res: any) => {
     const user = await User.findOneAndUpdate({ id: userId }, req.body);
     res.status(200).json(user);
   } catch (error) {
-    res.status(404).json({ error });
+    res.status(400).json({ error });
+  }
+};
+
+export const registration = async (req: any, res: any, next: any) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      console.log(errors);
+    }
+
+    const { email, password } = req.body;
+    const userData = await userRegistration(email, password);
+    res.cookie('refreshToken', userData.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true });
+    res.status(200).json(userData);
+  } catch (error) {
+    res.status(400).json({ error });
+  }
+};
+
+export const activate = async (req: any, res: any, next: any) => {
+  try {
+    const activationLink = req.params.link;
+    await activateAccount(activationLink);
+    return res.redirect(process.env.CLIENT_URL);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const login = async (req: any, res: any, next: any) => {
+  try {
+    const { email, password } = req.body;
+
+    const userData = await loginUser(email, password);
+    res.cookie('refreshToken', userData.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true });
+    res.status(200).json(userData);
+  } catch (error) {
+    res.status(400).json({ error });
+  }
+};
+
+export const logout = async (req: any, res: any, next: any) => {
+  try {
+    const { refreshToken } = req.cookies;
+    const token = await logoutUser(refreshToken);
+    res.clearCookie('refreshToken');
+    return res.json(token);
+  } catch (error) {
+    res.status(400).json({ error });
+  }
+};
+
+export const refresh = async (req: any, res: any, next: any) => {
+  try {
+    const { refreshToken } = req.cookies;
+    const userData = await updateToken(refreshToken);
+    return res.json(userData);
+  } catch (error) {
+    res.status(400).json({ error });
   }
 };
