@@ -5,6 +5,17 @@ import {
   userRegistration, activateAccount, loginUser, logoutUser, updateToken,
 } from '../service/user';
 
+type ReqBody = {
+  body: {
+    email: string,
+    password: string,
+    firstName: string,
+    secondName: string,
+    phone: string,
+    username: string,
+  }
+}
+
 export const readUsers = async (req: any, res: any) => {
   try {
     const user = await User.find();
@@ -44,15 +55,31 @@ export const editUser = async (req: any, res: any) => {
   }
 };
 
-export const registration = async (req: any, res: any, next: any) => {
+export const registration = async (req: ReqBody, res: any, next: any) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       console.log(errors);
     }
 
-    const { email, password } = req.body;
-    const userData = await userRegistration(email, password);
+    const {
+      email,
+      password,
+      firstName,
+      secondName,
+      username,
+      phone,
+    } = req.body;
+
+    const userData = await userRegistration({
+      email,
+      password,
+      firstName,
+      secondName,
+      username,
+      phone,
+    });
+
     res.cookie('refreshToken', userData.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true });
     res.status(200).json(userData);
   } catch (error) {
@@ -75,7 +102,7 @@ export const login = async (req: any, res: any, next: any) => {
     const { email, password } = req.body;
 
     const userData = await loginUser(email, password);
-    res.cookie('refreshToken', userData.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true });
+    res.cookie('refreshToken', userData.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000 });
     res.status(200).json(userData);
   } catch (error) {
     res.status(400).json({ error });

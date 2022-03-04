@@ -1,4 +1,4 @@
-/* eslint-disable no-console */
+/* eslint-disable prefer-regex-literals */
 import express from 'express';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
@@ -12,7 +12,7 @@ import authRouter from './src/routes/index';
 dotenv.config();
 
 const MONGODB = 'mongodb+srv://staselko:staselya2002@cluster0.9oryx.mongodb.net/forum?retryWrites=true&w=majority';
-const PORT = process.env.PORT || 5000;
+const { PORT } = process.env;
 
 const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));

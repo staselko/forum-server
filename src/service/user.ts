@@ -6,17 +6,27 @@ import { sendActivationMail } from './mail';
 import {
   findToken, generateTokens, removeToken, saveToken, validateRefreshToken,
 } from './token';
+import { IUser } from '../intefaces/UserInterfaces';
 
 const UserDto = require('../dtos/user');
 
-export const userRegistration = async (email : string, password: string | Buffer) => {
+export const userRegistration = async ({
+  email,
+  password,
+  firstName,
+  secondName,
+  phone,
+  username,
+}: IUser) => {
   const candidate = await User.findOne({ email });
   if (candidate) {
     throw new Error(`User ${email} already exists`);
   }
   const hashPassword = await bcrypt.hash(password, 3);
   const activationLink = uid();
-  const user = await User.create({ email, password: hashPassword, activationLink });
+  const user = await User.create({
+    email, password: hashPassword, firstName, secondName, activationLink, phone, username,
+  });
   await sendActivationMail(email, `${'http://localhost:5000'}/activate/${activationLink}`);
 
   const userDto = new UserDto(user);
