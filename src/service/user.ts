@@ -52,7 +52,6 @@ export const activateAccount = async (activationLink: string) => {
 
 export const loginUser = async (email: string, password: string) => {
   const user = await User.findOne({ email });
-
   if (!user) {
     console.log('user is undefined');
   }
@@ -68,8 +67,8 @@ export const loginUser = async (email: string, password: string) => {
   await saveToken(userDto.id, tokens.refreshToken);
 
   return {
-    ...tokens,
     user: userDto,
+    ...tokens,
   };
 };
 
@@ -80,14 +79,14 @@ export const logoutUser = async (refreshToken: string) => {
 
 export const updateToken = async (refreshToken: string) => {
   if (!refreshToken) {
-    console.log('wrong token');
+    console.log('Wrong token');
   }
 
   const userData: any = validateRefreshToken(refreshToken);
   const tokenFromDB = await findToken(refreshToken);
 
   if (!userData || !tokenFromDB) {
-    console.log('unauthorized user');
+    console.log('Wrong token or Unauthorized user');
   }
 
   const user = await User.findById(userData.id);

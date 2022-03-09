@@ -1,5 +1,5 @@
 module.exports = class UserDto {
-  private regExp = new RegExp(/\w+/);
+  static regExp = new RegExp(/\w+/);
 
   email;
 
@@ -31,7 +31,7 @@ module.exports = class UserDto {
     this.isActivated = model.isActivated;
     this.firstName = model.firstName;
     this.secondName = model.secondName;
-    this.username = model.username ? model.username : this.regExp.exec(model.email)[0];
+    this.username = model.username ? model.username : UserDto.regExp.exec(model.email)[0];
     this.phone = model.phone;
   }
 };

@@ -3,6 +3,8 @@ import {
   readUsers, createUser, readTargetUser, editUser,
 } from '../controllers/user';
 
+// const authMiddleware = require('../middlewares/auth');
+
 const router = express.Router();
 
 router.get('/', readUsers);

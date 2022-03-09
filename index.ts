@@ -15,16 +15,19 @@ const MONGODB = 'mongodb+srv://staselko:staselya2002@cluster0.9oryx.mongodb.net/
 const { PORT } = process.env;
 
 const app = express();
+dotenv.config();
+
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-app.use(cors());
+app.use(cors({
+  credentials: true,
+  origin: process.env.FRONT_URL,
+}));
 app.use(cookieParser());
 app.use('/users', userRouter);
 app.use('/posts', postRouter);
 app.use('/', authRouter);
 app.listen(PORT);
-dotenv.config();
-
 mongoose.connect(MONGODB, { useUnifiedTopology: true, useNewUrlParser: true })
   .then(() => console.log('\x1b[32m', 'Successfully connected to the database'))
   .catch((err) => console.log('\x1b[31m', 'Could not connect to the database. Error...', err));

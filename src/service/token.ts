@@ -29,7 +29,7 @@ export const removeToken = async (refreshToken: string) => {
   return tokenData;
 };
 
-export const validateAccessToken = (token: string) => {
+export const validateAccessToken = (token: string): any => {
   try {
     const userData = jwt.verify(
       token,
@@ -49,8 +49,7 @@ export const validateRefreshToken = (token: string) => {
     );
     return userData;
   } catch (e) {
-    console.log(e);
-    return {};
+    return null;
   }
 };
 

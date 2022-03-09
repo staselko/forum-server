@@ -1,5 +1,7 @@
 /* eslint-disable no-unused-vars */
-import { validationResult } from 'express-validator';
+import cookieParser from 'cookie-parser';
+import { cookie, validationResult } from 'express-validator';
+import { contextsKey } from 'express-validator/src/base';
 import User from '../models/user';
 import {
   userRegistration, activateAccount, loginUser, logoutUser, updateToken,
@@ -102,8 +104,8 @@ export const login = async (req: any, res: any, next: any) => {
     const { email, password } = req.body;
 
     const userData = await loginUser(email, password);
-    res.cookie('refreshToken', userData.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000 });
-    res.status(200).json(userData);
+    res.cookie('refreshToken', userData.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true });
+    return res.json(userData);
   } catch (error) {
     res.status(400).json({ error });
   }
@@ -124,8 +126,9 @@ export const refresh = async (req: any, res: any, next: any) => {
   try {
     const { refreshToken } = req.cookies;
     const userData = await updateToken(refreshToken);
+    res.cookie('refreshToken', userData.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true });
     return res.json(userData);
   } catch (error) {
-    res.status(400).json({ error });
+    console.log('refresh error');
   }
 };
