@@ -8,6 +8,7 @@ import cors from 'cors';
 import postRouter from './src/routes/post';
 import userRouter from './src/routes/user';
 import authRouter from './src/routes/index';
+import commentRouter from './src/routes/comments';
 
 dotenv.config();
 
@@ -26,6 +27,7 @@ app.use(cors({
 app.use(cookieParser());
 app.use('/users', userRouter);
 app.use('/posts', postRouter);
+app.use('/comments', commentRouter);
 app.use('/', authRouter);
 app.listen(PORT);
 mongoose.connect(MONGODB, { useUnifiedTopology: true, useNewUrlParser: true })

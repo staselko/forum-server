@@ -2,13 +2,13 @@ import mongoose from 'mongoose';
 
 const { Schema } = mongoose;
 
-const postSchema = new Schema({
-  userId: String,
-  title: String,
-  body: String,
-  id: String,
+const PostSchema = new Schema({
+  userId: { type: String, required: true },
+  title: { type: String, required: true },
+  body: { type: String, required: true },
+  id: { type: String, required: true },
 }, { timestamps: true });
 
-const Post = mongoose.model('post', postSchema);
+const Post = mongoose.model('post', PostSchema);
 
 export default Post;
