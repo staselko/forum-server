@@ -1,18 +1,7 @@
 /* eslint-disable import/prefer-default-export */
 import { addComment } from '../service/comments';
 import Comment from '../models/comments';
-
-type RequestComment = {
-  body: {
-    id: string,
-    postId: string,
-    body: string,
-    _id: string,
-  }
-  params: {
-    postId: string,
-  }
-}
+import { RequestComment } from '../intefaces/PostInterfaces';
 
 export const readComments = async (req: any, res: any) => {
   try {
@@ -45,10 +34,12 @@ export const getTargetComments = async (req: RequestComment, res: any) => {
 
 export const redactComment = async (req: RequestComment, res: any) => {
   try {
-    const { body, _id } = req.body;
-
-    const changedComment = await Comment.findOneAndUpdate({ _id }, { body });
-    res.status(200).json(changedComment);
+    const { _id, body } = req.body;
+    const changedComment = await Comment.findOne({ _id });
+    changedComment.body = body;
+    await changedComment.save();
+    const comments = await Comment.find();
+    res.status(200).json(comments);
   } catch (error) {
     console.log(error);
   }
