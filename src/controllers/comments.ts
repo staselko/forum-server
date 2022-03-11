@@ -44,3 +44,14 @@ export const redactComment = async (req: RequestComment, res: any) => {
     console.log(error);
   }
 };
+
+export const deleteComment = async (req: any, res: any) => {
+  try {
+    const { _id } = req.body;
+    await Comment.deleteOne({ _id });
+    const comments = await Comment.find();
+    return res.status(200).json(comments);
+  } catch (error) {
+    console.log(error);
+  }
+};
