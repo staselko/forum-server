@@ -30,6 +30,7 @@ app.use('/posts', postRouter);
 app.use('/comments', commentRouter);
 app.use('/', authRouter);
 app.listen(PORT);
+mongoose.set('useFindAndModify', false);
 mongoose.connect(MONGODB, { useUnifiedTopology: true, useNewUrlParser: true })
   .then(() => console.log('\x1b[32m', 'Successfully connected to the database'))
   .catch((err) => console.log('\x1b[31m', 'Could not connect to the database. Error...', err));

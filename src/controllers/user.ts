@@ -3,6 +3,8 @@ import cookieParser from 'cookie-parser';
 import { cookie, validationResult } from 'express-validator';
 import { contextsKey } from 'express-validator/src/base';
 import User from '../models/user';
+import Post from '../models/post';
+import Comment from '../models/comments';
 import {
   userRegistration, activateAccount, loginUser, logoutUser, updateToken,
 } from '../service/user';
@@ -15,6 +17,9 @@ type ReqBody = {
     secondName: string,
     phone: string,
     username: string,
+  },
+  params?: {
+    userId: string,
   }
 }
 
@@ -47,10 +52,10 @@ export const readTargetUser = async (req: any, res: any) => {
   }
 };
 
-export const editUser = async (req: any, res: any) => {
-  const { userId } = req.params;
+export const editUser = async (req: ReqBody, res: any) => {
   try {
-    const user = await User.findOneAndUpdate({ id: userId }, req.body);
+    const { userId: _id } = req.params;
+    const user = await User.findOneAndUpdate({ _id }, req.body);
     res.status(200).json(user);
   } catch (error) {
     res.status(400).json({ error });
@@ -130,5 +135,18 @@ export const refresh = async (req: any, res: any, next: any) => {
     return res.json(userData);
   } catch (error) {
     console.log('refresh error');
+  }
+};
+
+export const deleteUser = async (req: ReqBody, res: any, next: any) => {
+  try {
+    const { userId: _id } = req.params;
+    await User.deleteOne({ _id });
+    await Post.find({ userId: _id }).remove();
+    await Comment.find({ userId: _id }).remove();
+    const users = await User.find();
+    return res.status(200).json(users);
+  } catch (error) {
+    console.log(error);
   }
 };
