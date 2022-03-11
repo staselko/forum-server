@@ -12,6 +12,8 @@ import commentRouter from './src/routes/comments';
 
 dotenv.config();
 
+const errorMiddleware = require('./src/middlewares/errors');
+
 const MONGODB = 'mongodb+srv://staselko:staselya2002@cluster0.9oryx.mongodb.net/forum?retryWrites=true&w=majority';
 const { PORT } = process.env;
 
@@ -30,6 +32,7 @@ app.use('/posts', postRouter);
 app.use('/comments', commentRouter);
 app.use('/', authRouter);
 app.listen(PORT);
+app.use('/', errorMiddleware);
 mongoose.set('useFindAndModify', false);
 mongoose.connect(MONGODB, { useUnifiedTopology: true, useNewUrlParser: true })
   .then(() => console.log('\x1b[32m', 'Successfully connected to the database'))

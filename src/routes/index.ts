@@ -12,8 +12,8 @@ const router = express.Router();
 
 router.post(
   '/registration',
-  body('email').isEmail(),
-  body('password').isLength({ min: 5, max: 32 }),
+  body('email').isEmail().isEmpty().isLength({ min: 5, max: 32 }),
+  body('password').isLength({ min: 8, max: 16 }),
   registration,
 );
 router.get('/activate/:link', activate);

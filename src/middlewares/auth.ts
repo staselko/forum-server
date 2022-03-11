@@ -1,24 +1,31 @@
 /* eslint-disable import/no-import-module-exports */
 import { validateAccessToken } from '../service/token';
 
-module.exports = function (req: any) {
+const ApiError = require('../exceptions/api-error');
+
+module.exports = (req: any, res: any, next: any) => {
   try {
-    console.log(req);
     const authHeader = req.body.authorization;
     if (!authHeader) {
-      console.log('Unauthorized error');
+      return next(ApiError.UnauthorizedError());
     }
 
     const accessToken = authHeader.split(' ')[1];
 
+    if (!accessToken) {
+      return next(ApiError.UnauthorizedError());
+    }
+
     const userData = validateAccessToken(accessToken);
+
+    if (!userData) {
+      return next(ApiError.UnauthorizedError());
+    }
 
     req.user = userData;
 
-    if (!userData) {
-      console.log('Unauthorized error');
-    }
+    next();
   } catch (error) {
-    console.log('Unauthorized error', error);
+    return next(ApiError.UnauthorizedError());
   }
 };

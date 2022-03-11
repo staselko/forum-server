@@ -9,6 +9,8 @@ import {
   userRegistration, activateAccount, loginUser, logoutUser, updateToken,
 } from '../service/user';
 
+const ApiError = require('../exceptions/api-error');
+
 type ReqBody = {
   body: {
     email: string,
@@ -66,7 +68,7 @@ export const registration = async (req: ReqBody, res: any, next: any) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      console.log(errors);
+      next(ApiError.BadRequest('Validation errors', errors));
     }
 
     const {
@@ -90,7 +92,7 @@ export const registration = async (req: ReqBody, res: any, next: any) => {
     res.cookie('refreshToken', userData.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true });
     res.status(200).json(userData);
   } catch (error) {
-    res.status(400).json({ error });
+    next(error);
   }
 };
 
@@ -100,19 +102,18 @@ export const activate = async (req: any, res: any, next: any) => {
     await activateAccount(activationLink);
     return res.redirect(process.env.CLIENT_URL);
   } catch (error) {
-    console.log(error);
+    next(error);
   }
 };
 
 export const login = async (req: any, res: any, next: any) => {
   try {
     const { email, password } = req.body;
-
     const userData = await loginUser(email, password);
     res.cookie('refreshToken', userData.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true });
     return res.json(userData);
-  } catch (error) {
-    res.status(400).json({ error });
+  } catch (error: any) {
+    next(error, 5, 5);
   }
 };
 
@@ -134,7 +135,7 @@ export const refresh = async (req: any, res: any, next: any) => {
     res.cookie('refreshToken', userData.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true });
     return res.json(userData);
   } catch (error) {
-    console.log('refresh error');
+    next(error);
   }
 };
 
@@ -147,6 +148,6 @@ export const deleteUser = async (req: ReqBody, res: any, next: any) => {
     const users = await User.find();
     return res.status(200).json(users);
   } catch (error) {
-    console.log(error);
+    next(error);
   }
 };

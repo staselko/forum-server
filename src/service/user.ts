@@ -8,6 +8,7 @@ import {
 } from './token';
 import { IUser } from '../intefaces/UserInterfaces';
 
+const ApiError = require('../exceptions/api-error');
 const UserDto = require('../dtos/user');
 
 export const userRegistration = async ({
@@ -18,10 +19,35 @@ export const userRegistration = async ({
   phone,
   username,
 }: IUser) => {
-  const candidate = await User.findOne({ email });
+  const candidate = await User.findOne({ email: email.toLowerCase() });
   if (candidate) {
-    throw new Error(`User ${email} already exists`);
+    throw ApiError.BadRequest(`User with ${email} already exists`);
   }
+
+  if (!password) {
+    throw ApiError.BadRequest('Password is empty');
+  }
+
+  if (password.length > 8 || password.length < 16) {
+    throw ApiError.BadRequest('Password must be betwewn 8 an 16 length');
+  }
+
+  if (!email) {
+    throw ApiError.BadRequest('Email is empty');
+  }
+
+  if (!firstName) {
+    throw ApiError.BadRequest('Name is empty');
+  }
+
+  if (!secondName) {
+    throw ApiError.BadRequest('Surname is empty');
+  }
+
+  if (!phone) {
+    throw ApiError.BadRequest('Phone is empty');
+  }
+
   const hashPassword = await bcrypt.hash(password, 3);
   const activationLink = uid();
   const user = await User.create({
@@ -43,7 +69,7 @@ export const activateAccount = async (activationLink: string) => {
   const user = await User.findOne({ activationLink });
 
   if (!user) {
-    throw new Error('Wrong link');
+    throw ApiError.BadRequest('Wrong link');
   }
 
   user.isActivated = true;
@@ -53,13 +79,13 @@ export const activateAccount = async (activationLink: string) => {
 export const loginUser = async (email: string, password: string) => {
   const user = await User.findOne({ email });
   if (!user) {
-    console.log('user is undefined');
+    throw ApiError.BadRequest(`Can't find user with ${email} email`);
   }
 
   const isPassEquals = await bcrypt.compare(password, user.password);
 
   if (!isPassEquals) {
-    console.log('password is wrong');
+    throw ApiError.BadRequest('Wrong Password or Email');
   }
 
   const userDto = new UserDto(user);
@@ -79,14 +105,14 @@ export const logoutUser = async (refreshToken: string) => {
 
 export const updateToken = async (refreshToken: string) => {
   if (!refreshToken) {
-    console.log('Wrong token');
+    throw ApiError.UnauthorizedError();
   }
 
   const userData: any = validateRefreshToken(refreshToken);
   const tokenFromDB = await findToken(refreshToken);
 
   if (!userData || !tokenFromDB) {
-    console.log('Wrong token or Unauthorized user');
+    throw ApiError.UnauthorizedError();
   }
 
   const user = await User.findById(userData.id);
