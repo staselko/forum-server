@@ -21,7 +21,8 @@ type ReqBody = {
     username: string,
   },
   params?: {
-    userId: string,
+    userId?: string,
+    usersPaginationNum?: string,
   }
 }
 
@@ -34,20 +35,13 @@ export const readUsers = async (req: any, res: any) => {
   }
 };
 
-export const createUser = async (req: any, res: any) => {
-  const newUser = new User(req.body);
-  try {
-    await newUser.save();
-    res.status(201).json(newUser);
-  } catch (error) {
-    res.status(400).json({ error });
-  }
-};
-
 export const readTargetUser = async (req: any, res: any) => {
   const { userId } = req.params;
   try {
-    const user = await User.findOne({ id: userId });
+    const user = await User.findOne({ id: userId }).populate('post').exec((err: any, u: any) => {
+      if (err) return console.log(err);
+      console.log('The author is %s', u);
+    });
     res.status(200).json(user);
   } catch (error) {
     res.status(400).json({ error });
@@ -66,11 +60,6 @@ export const editUser = async (req: ReqBody, res: any) => {
 
 export const registration = async (req: ReqBody, res: any, next: any) => {
   try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      next(ApiError.BadRequest('Validation errors', errors));
-    }
-
     const {
       email,
       password,
@@ -147,6 +136,19 @@ export const deleteUser = async (req: ReqBody, res: any, next: any) => {
     await Comment.find({ userId: _id }).remove();
     const users = await User.find();
     return res.status(200).json(users);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const readUsersTargetPage = async (req: any, res: any, next: any) => {
+  try {
+    const step = 10;
+    const { usersPaginationNum } = req.params;
+    const userToShow = await User.find({ createdOn: { $lte: req.createdOnBefore } })
+      .limit(step * usersPaginationNum)
+      .sort('-createdOn');
+    return res.status(200).json(userToShow);
   } catch (error) {
     next(error);
   }

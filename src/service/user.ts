@@ -28,10 +28,6 @@ export const userRegistration = async ({
     throw ApiError.BadRequest('Password is empty');
   }
 
-  if (password.length > 8 || password.length < 16) {
-    throw ApiError.BadRequest('Password must be betwewn 8 an 16 length');
-  }
-
   if (!email) {
     throw ApiError.BadRequest('Email is empty');
   }
@@ -53,6 +49,7 @@ export const userRegistration = async ({
   const user = await User.create({
     email, password: hashPassword, firstName, secondName, activationLink, phone, username,
   });
+
   await sendActivationMail(email, `${'http://localhost:5000'}/activate/${activationLink}`);
 
   const userDto = new UserDto(user);

@@ -1,4 +1,3 @@
-/* eslint-disable prefer-regex-literals */
 import express from 'express';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
@@ -38,7 +37,6 @@ mongoose.connect(MONGODB, { useUnifiedTopology: true, useNewUrlParser: true })
   .then(() => console.log('\x1b[32m', 'Successfully connected to the database'))
   .catch((err) => console.log('\x1b[31m', 'Could not connect to the database. Error...', err));
 
-app.get('/', (req, res) => {
-  console.log('\x1b[32m', `Server is working on port ${PORT}`);
+app.get('/', async (req, res) => {
   res.send(`Server is working on port ${PORT}`);
 });

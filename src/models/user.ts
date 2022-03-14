@@ -11,6 +11,12 @@ const UserSchema = new Schema({
   password: { type: String, required: true },
   isActivated: { type: Boolean, default: false },
   activationLink: { type: String },
+  posts: [{
+    type: Schema.Types.ObjectId, ref: 'Post',
+  }],
+  commets: [{
+    type: Schema.Types.ObjectId, ref: 'Comment',
+  }],
 }, { timestamps: true });
 
 const User = mongoose.model('user', UserSchema);
