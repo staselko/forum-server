@@ -3,7 +3,7 @@ module.exports = class UserDto {
 
   email;
 
-  id;
+  _id;
 
   isActivated;
 
@@ -27,7 +27,7 @@ module.exports = class UserDto {
       }) {
     this.email = model.email;
     // eslint-disable-next-line no-underscore-dangle
-    this.id = model._id;
+    this._id = model._id;
     this.isActivated = model.isActivated;
     this.firstName = model.firstName;
     this.secondName = model.secondName;

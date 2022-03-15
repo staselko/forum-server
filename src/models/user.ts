@@ -12,11 +12,9 @@ const UserSchema = new Schema({
   isActivated: { type: Boolean, default: false },
   activationLink: { type: String },
   posts: [{
-    type: Schema.Types.ObjectId, ref: 'Post',
+    type: Schema.Types.ObjectId, ref: 'post',
   }],
-  commets: [{
-    type: Schema.Types.ObjectId, ref: 'Comment',
-  }],
+
 }, { timestamps: true });
 
 const User = mongoose.model('user', UserSchema);

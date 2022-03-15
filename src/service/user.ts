@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 import { v4 as uid } from 'uuid';
 import * as bcrypt from 'bcrypt';
 
@@ -54,7 +55,7 @@ export const userRegistration = async ({
 
   const userDto = new UserDto(user);
   const tokens = generateTokens({ ...userDto });
-  await saveToken(userDto.id, tokens.refreshToken);
+  await saveToken(userDto._id, tokens.refreshToken);
 
   return {
     ...tokens,
@@ -87,7 +88,7 @@ export const loginUser = async (email: string, password: string) => {
 
   const userDto = new UserDto(user);
   const tokens = generateTokens({ ...userDto });
-  await saveToken(userDto.id, tokens.refreshToken);
+  await saveToken(userDto._id, tokens.refreshToken);
 
   return {
     user: userDto,
@@ -112,10 +113,10 @@ export const updateToken = async (refreshToken: string) => {
     throw ApiError.UnauthorizedError();
   }
 
-  const user = await User.findById(userData.id);
+  const user = await User.findById(userData._id);
   const userDto = new UserDto(user);
   const tokens = generateTokens({ ...userDto });
 
-  await saveToken(userDto.id, tokens.refreshToken);
+  await saveToken(userDto._id, tokens.refreshToken);
   return { ...tokens, user: userDto };
 };

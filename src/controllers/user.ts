@@ -28,7 +28,14 @@ type ReqBody = {
 
 export const readUsers = async (req: any, res: any) => {
   try {
-    const user = await User.find();
+    const user = await User.find().populate('posts')
+      .then((data: any) => {
+        if (!data.length) {
+          throw ApiError.BadRequest('No posts');
+        }
+        return data;
+      });
+
     res.status(200).json(user);
   } catch (error) {
     res.status(400).json({ error });
@@ -38,10 +45,9 @@ export const readUsers = async (req: any, res: any) => {
 export const readTargetUser = async (req: any, res: any) => {
   const { userId } = req.params;
   try {
-    const user = await User.findOne({ id: userId }).populate('post').exec((err: any, u: any) => {
-      if (err) return console.log(err);
-      console.log('The author is %s', u);
-    });
+    const user = await User.findOne({ _id: userId })
+      .populate('posts');
+
     res.status(200).json(user);
   } catch (error) {
     res.status(400).json({ error });
@@ -68,7 +74,6 @@ export const registration = async (req: ReqBody, res: any, next: any) => {
       username,
       phone,
     } = req.body;
-
     const userData = await userRegistration({
       email,
       password,
@@ -102,7 +107,7 @@ export const login = async (req: any, res: any, next: any) => {
     res.cookie('refreshToken', userData.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true });
     return res.json(userData);
   } catch (error: any) {
-    next(error, 5, 5);
+    next(error);
   }
 };
 
