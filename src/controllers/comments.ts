@@ -1,7 +1,7 @@
 /* eslint-disable import/prefer-default-export */
 import { addComment } from '../service/comments';
 import Comment from '../models/comments';
-import { RequestComment } from '../intefaces/PostInterfaces';
+import { RequestComment } from '../intefaces/postInterfaces';
 
 const ApiError = require('../exceptions/api-error');
 
@@ -19,7 +19,7 @@ export const readComments = async (req: any, res: any, next: any) => {
 
 export const createComment = async (req: RequestComment, res: any, next: any) => {
   try {
-    const { id: userId, body, postId } = req.body;
+    const { _id: userId, body, postId } = req.body;
     const userCreator = await addComment(userId, body, postId);
     return res.status(200).json(userCreator);
   } catch (error) {

@@ -1,0 +1,24 @@
+/* eslint-disable no-param-reassign */
+import { dtoPost } from '../dtos/comment';
+import { IComment } from '../intefaces/commentInterface';
+import Post from '../models/post';
+
+const UserDto = require('../dtos/user');
+const ApiError = require('../exceptions/api-error');
+
+export const getPost = async (postId: string) => {
+  const targetPost = await Post.findById({ _id: postId })
+    .populate('user comments')
+    .then((data: any) => {
+      if (!data._id) {
+        throw ApiError.BadRequest('No such post');
+      }
+      data.user = new UserDto(data.user);
+      data.comments.forEach((item: IComment, index: number) => {
+        item = dtoPost(item);
+        data.comments[index] = item;
+      });
+      return data;
+    });
+  return targetPost;
+};

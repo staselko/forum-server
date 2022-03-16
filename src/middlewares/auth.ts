@@ -5,7 +5,7 @@ const ApiError = require('../exceptions/api-error');
 
 module.exports = (req: any, res: any, next: any) => {
   try {
-    const authHeader = req.body.authorization;
+    const authHeader = req.headers.authorization;
     if (!authHeader) {
       return next(ApiError.UnauthorizedError());
     }
@@ -23,7 +23,6 @@ module.exports = (req: any, res: any, next: any) => {
     }
 
     req.user = userData;
-
     next();
   } catch (error) {
     return next(ApiError.UnauthorizedError());

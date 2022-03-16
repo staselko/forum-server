@@ -7,7 +7,7 @@ import { sendActivationMail } from './mail';
 import {
   findToken, generateTokens, removeToken, saveToken, validateRefreshToken,
 } from './token';
-import { IUser } from '../intefaces/UserInterfaces';
+import { IUser } from '../intefaces/userInterfaces';
 
 const ApiError = require('../exceptions/api-error');
 const UserDto = require('../dtos/user');
