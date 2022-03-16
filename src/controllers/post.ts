@@ -6,7 +6,7 @@ import User from '../models/user';
 const UserDto = require('../dtos/user');
 const ApiError = require('../exceptions/api-error');
 
-export const readPosts = async (req: any, res: any) => {
+export const readPosts = async (req: any, res: any, next: any) => {
   try {
     const posts = await Post.find()
       .populate('user')
@@ -22,11 +22,11 @@ export const readPosts = async (req: any, res: any) => {
       });
     return res.status(200).json(posts);
   } catch (error: unknown) {
-    res.status(400).json({ error });
+    next(error);
   }
 };
 
-export const createPost = async (req: any, res: any) => {
+export const createPost = async (req: any, res: any, next: any) => {
   const post = new Post(req.body);
   try {
     await post.save();
@@ -40,6 +40,6 @@ export const createPost = async (req: any, res: any) => {
     await user.save();
     res.status(200).json(post);
   } catch (error: unknown) {
-    res.status(400).json({ error });
+    next(error);
   }
 };
