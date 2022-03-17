@@ -1,7 +1,7 @@
-/* eslint-disable import/prefer-default-export */
 import { addComment } from '../service/comments';
 import Comment from '../models/comments';
 import { RequestComment } from '../intefaces/postInterfaces';
+import Post from '../models/post';
 
 const ApiError = require('../exceptions/api-error');
 
@@ -20,8 +20,8 @@ export const readComments = async (req: any, res: any, next: any) => {
 export const createComment = async (req: RequestComment, res: any, next: any) => {
   try {
     const { _id: userId, body, postId } = req.body;
-    const userCreator = await addComment(userId, body, postId);
-    return res.status(200).json(userCreator);
+    const newComment = await addComment(userId, body, postId);
+    return res.status(200).json(newComment);
   } catch (error) {
     next(error);
   }
@@ -42,28 +42,31 @@ export const getTargetComments = async (req: RequestComment, res: any, next: any
 
 export const redactComment = async (req: RequestComment, res: any, next: any) => {
   try {
-    const { _id, body } = req.body;
+    const { _id, body, postId } = req.body;
+
     const changedComment = await Comment.findOne({ _id });
     if (!_id) {
       throw ApiError.BadRequest('Such comment doesnt exists');
     }
     changedComment.body = body;
     await changedComment.save();
-    const comments = await Comment.find();
+    const { comments } = await Post.findById({ _id: postId })
+      .populate('comments');
     res.status(200).json(comments);
   } catch (error) {
     next(error);
   }
 };
 
-export const deleteComment = async (req: any, res: any, next: any) => {
+export const deleteComment = async (req: RequestComment, res: any, next: any) => {
   try {
-    const { _id } = req.body;
+    const { _id, postId } = req.body;
     if (!_id) {
       throw ApiError.BadRequest('Such comment doesnt exists');
     }
     await Comment.deleteOne({ _id });
-    const comments = await Comment.find();
+    const { comments } = await Post.findById({ _id: postId })
+      .populate('comments');
     return res.status(200).json(comments);
   } catch (error) {
     next(error);

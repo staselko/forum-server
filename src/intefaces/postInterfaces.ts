@@ -22,8 +22,8 @@ export interface RequestPost {
   body: {
     userId?: string | number,
     id: number | string,
-    title: String,
-    body: String,
+    title: string,
+    body: string,
     comments?: [],
     [x: string]: any,
   }

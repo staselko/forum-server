@@ -22,3 +22,24 @@ export const getPost = async (postId: string) => {
     });
   return targetPost;
 };
+
+export const changePost = async (_id: string, newBody: string) => {
+  const post = await Post.findById({ _id })
+    .populate('user comments')
+    .then((data: any) => {
+      if (!data._id) {
+        throw ApiError.BadRequest('No such post');
+      }
+      data.title = newBody;
+
+      data.user = new UserDto(data.user);
+      data.comments.forEach((item: IComment, index: number) => {
+        item = dtoPost(item);
+        data.comments[index] = item;
+      });
+
+      return data;
+    });
+  await post.save();
+  return post;
+};

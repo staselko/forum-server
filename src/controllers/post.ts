@@ -1,11 +1,10 @@
-/* eslint-disable no-param-reassign */
 import { NextFunction, Response } from 'express';
 import { IComment } from '../intefaces/commentInterface';
 import { dtoPost } from '../dtos/comment';
 import Post from '../models/post';
 import User from '../models/user';
 import { RequestPost } from '../intefaces/postInterfaces';
-import { getPost } from '../service/post';
+import { getPost, changePost } from '../service/post';
 
 const UserDto = require('../dtos/user');
 const ApiError = require('../exceptions/api-error');
@@ -57,6 +56,31 @@ export const getTargetPost = async (req: RequestPost, res: Response, next: NextF
     const { postId } = req.params;
     const post = await getPost(postId);
     return res.status(200).json([post]);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deletePost = async (req: RequestPost, res: Response, next: NextFunction) => {
+  try {
+    const { postId } = req.params;
+    const deletingPost = await Post.findByIdAndDelete({ _id: postId });
+    const user = await User.findById({ _id: deletingPost.user })
+      .populate('posts');
+
+    return res.status(200).json(user);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const editPost = async (req: RequestPost, res: Response, next: NextFunction) => {
+  try {
+    const { _id, title } = req.body;
+    const post = await changePost(_id, title);
+    const user = await User.findById({ _id: post.user._id })
+      .populate('posts');
+    return res.status(200).json(user.posts);
   } catch (error) {
     next(error);
   }

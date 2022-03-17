@@ -75,7 +75,8 @@ export const activateAccount = async (activationLink: string) => {
 };
 
 export const loginUser = async (email: string, password: string) => {
-  const user = await User.findOne({ email });
+  const user = await User.findOne({ email })
+    .populate('posts');
   if (!user) {
     throw ApiError.BadRequest(`Can't find user with ${email} email`);
   }
@@ -113,7 +114,8 @@ export const updateToken = async (refreshToken: string) => {
     throw ApiError.UnauthorizedError();
   }
 
-  const user = await User.findById(userData._id);
+  const user = await User.findById(userData._id)
+    .populate('posts');
   const userDto = new UserDto(user);
   const tokens = generateTokens({ ...userDto });
 
