@@ -122,3 +122,12 @@ export const updateToken = async (refreshToken: string) => {
   await saveToken(userDto._id, tokens.refreshToken);
   return { ...tokens, user: userDto };
 };
+
+export const checkIfUserExists = async (_id: string) => {
+  const findUser = await User.findOne({ _id });
+  if (findUser) {
+    return findUser;
+  }
+
+  throw ApiError.BadRequest();
+};

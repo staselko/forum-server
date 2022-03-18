@@ -11,7 +11,8 @@ const ApiError = require('../exceptions/api-error');
 
 export const readPosts = async (req: any, res: any, next: NextFunction) => {
   try {
-    const posts = await Post.find()
+    const { limit, startIndex } = res;
+    const posts = await Post.find().limit(limit).skip(startIndex)
       .populate('user comments')
       .then((data: any) => {
         data.forEach((post: any) => {

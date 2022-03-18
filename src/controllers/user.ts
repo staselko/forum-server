@@ -1,3 +1,4 @@
+import { NextFunction } from 'express';
 /* eslint-disable no-unused-vars */
 import cookieParser from 'cookie-parser';
 import { cookie, validationResult } from 'express-validator';
@@ -6,7 +7,7 @@ import User from '../models/user';
 import Post from '../models/post';
 import Comment from '../models/comments';
 import {
-  userRegistration, activateAccount, loginUser, logoutUser, updateToken,
+  userRegistration, activateAccount, loginUser, logoutUser, updateToken, checkIfUserExists,
 } from '../service/user';
 
 const ApiError = require('../exceptions/api-error');
@@ -28,7 +29,11 @@ type ReqBody = {
 
 export const readUsers = async (req: any, res: any) => {
   try {
-    const user = await User.find().populate('posts')
+    const { limit, startIndex } = res;
+
+    const user = await User.find()
+      .limit(limit)
+      .populate('posts')
       .then((data: any) => {
         if (!data.length) {
           throw ApiError.BadRequest('No posts');
@@ -42,15 +47,18 @@ export const readUsers = async (req: any, res: any) => {
   }
 };
 
-export const readTargetUser = async (req: any, res: any) => {
+export const readTargetUser = async (req: any, res: any, next: NextFunction) => {
   const { userId } = req.params;
   try {
-    const user = await User.findOne({ _id: userId })
-      .populate('posts');
-
-    res.status(200).json(user);
+    if (!(userId.length === 24)) {
+      throw ApiError.PageNotFound();
+    }
+    const user = await User.findOne({ _id: userId });
+    if (!user) {
+      throw ApiError.PageNotFound();
+    }
   } catch (error) {
-    res.status(400).json({ error });
+    next(error);
   }
 };
 
