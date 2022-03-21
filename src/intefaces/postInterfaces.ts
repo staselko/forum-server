@@ -23,7 +23,7 @@ export interface RequestPost {
     userId?: string | number,
     id: number | string,
     title: string,
-    body: string,
+    imageUrl?: string,
     comments?: [],
     [x: string]: any,
   }

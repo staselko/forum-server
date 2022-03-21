@@ -34,9 +34,13 @@ export const readPosts = async (req: any, res: any, next: NextFunction) => {
   }
 };
 
-export const createPost = async (req: any, res: any, next: NextFunction) => {
+export const createPost = async (req: RequestPost, res: any, next: NextFunction) => {
   const post = new Post(req.body);
   try {
+    const { imageUrl } = req.body;
+
+    console.log(imageUrl);
+
     await post.save();
     const user = await User.findOne({ _id: req.body.user });
 
