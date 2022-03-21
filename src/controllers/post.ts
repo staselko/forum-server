@@ -55,7 +55,14 @@ export const createPost = async (req: any, res: any, next: NextFunction) => {
 export const getTargetPost = async (req: RequestPost, res: Response, next: NextFunction) => {
   try {
     const { postId } = req.params;
+    if (!(postId.length === 24)) {
+      throw ApiError.PageNotFound();
+    }
     const post = await getPost(postId);
+
+    if (!post) {
+      throw ApiError.PageNotFound();
+    }
     return res.status(200).json([post]);
   } catch (error) {
     next(error);

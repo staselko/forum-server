@@ -53,10 +53,12 @@ export const readTargetUser = async (req: any, res: any, next: NextFunction) => 
     if (!(userId.length === 24)) {
       throw ApiError.PageNotFound();
     }
-    const user = await User.findOne({ _id: userId });
+    const user = await User.findOne({ _id: userId })
+      .populate('posts');
     if (!user) {
       throw ApiError.PageNotFound();
     }
+    res.status(200).json(user);
   } catch (error) {
     next(error);
   }
