@@ -22,6 +22,11 @@
     "esnext",
     "dom"
 ],
+
+"externals": {
+    "FileReader": "FileReader",
+  },
+
   "include": [
       "src/**/*", "index.ts",
       "./index.ts"
