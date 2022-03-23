@@ -6,7 +6,9 @@ import Post from '../models/post';
 const ApiError = require('../exceptions/api-error');
 
 export const addComment = async (userId: string, body: string, postId: string) => {
-  const { isActivated, firstName, secondName } = await User.findOne({ _id: userId });
+  const {
+    isActivated, firstName, secondName, imageUrl,
+  } = await User.findOne({ _id: userId });
   if (!isActivated) {
     throw ApiError.BadRequest('User profile doesnt confirmed');
   }
@@ -18,6 +20,7 @@ export const addComment = async (userId: string, body: string, postId: string) =
     body,
     firstName,
     secondName,
+    imageUrl,
   });
   post.comments.push(comment._id);
   await post.save();

@@ -7,6 +7,7 @@ const CommentsSchema = new Schema({
   postId: { type: Schema.Types.ObjectId, ref: 'post', required: true },
   firstName: { type: String },
   secondName: { type: String },
+  imageUrl: { type: String },
   body: { type: String, required: true },
 }, { timestamps: true });
 

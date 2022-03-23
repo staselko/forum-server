@@ -15,9 +15,9 @@ module.exports = class UserDto {
 
   username;
 
-  phone;
-
   posts;
+
+  imageUrl;
 
   constructor(model:
      {
@@ -26,9 +26,9 @@ module.exports = class UserDto {
        isActivated: string,
        firstName: string,
        secondName: string,
-       phone: string,
        username: string | undefined,
        posts: IPost[],
+       imageUrl: string,
       }) {
     this.email = model.email;
     // eslint-disable-next-line no-underscore-dangle
@@ -37,7 +37,7 @@ module.exports = class UserDto {
     this.firstName = model.firstName;
     this.secondName = model.secondName;
     this.username = model.username ? model.username : UserDto.regExp.exec(model.email)[0];
-    this.phone = model.phone;
     this.posts = model.posts;
+    this.imageUrl = model.imageUrl;
   }
 };

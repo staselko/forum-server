@@ -11,6 +11,7 @@ import {
 } from '../service/user';
 
 const ApiError = require('../exceptions/api-error');
+const UserDto = require('../dtos/user');
 
 type ReqBody = {
   body: {
@@ -68,7 +69,10 @@ export const editUser = async (req: ReqBody, res: any) => {
   try {
     const { userId: _id } = req.params;
     const user = await User.findOneAndUpdate({ _id }, req.body);
-    res.status(200).json(user);
+    const updatedUser = await User.findOne({ _id }).populate('posts');
+    const userDto = new UserDto(updatedUser);
+
+    res.status(200).json(userDto);
   } catch (error) {
     res.status(400).json({ error });
   }

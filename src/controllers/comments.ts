@@ -33,7 +33,7 @@ export const getTargetComments = async (req: RequestComment, res: any, next: any
     if (!postId) {
       throw ApiError.BadRequest('Such post doesnt exists');
     }
-    const targetComments = await Comment.find({ postId });
+    const targetComments = await Comment.find({ postId }).populate('userId');
     res.status(200).json(targetComments);
   } catch (error) {
     next(error);

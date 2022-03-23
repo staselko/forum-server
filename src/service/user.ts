@@ -54,7 +54,7 @@ export const userRegistration = async ({
   await sendActivationMail(email, `${'http://localhost:5000'}/activate/${activationLink}`);
 
   const userDto = new UserDto(user);
-  const tokens = generateTokens({ ...userDto });
+  const tokens = generateTokens({ ...userDto, posts: null, imageUrl: null });
   await saveToken(userDto._id, tokens.refreshToken);
 
   return {
@@ -88,7 +88,7 @@ export const loginUser = async (email: string, password: string) => {
   }
 
   const userDto = new UserDto(user);
-  const tokens = generateTokens({ ...userDto });
+  const tokens = generateTokens({ ...userDto, posts: null, imageUrl: null });
   await saveToken(userDto._id, tokens.refreshToken);
 
   return {
@@ -117,7 +117,7 @@ export const updateToken = async (refreshToken: string) => {
   const user = await User.findById(userData._id)
     .populate('posts');
   const userDto = new UserDto(user);
-  const tokens = generateTokens({ ...userDto });
+  const tokens = generateTokens({ ...userDto, posts: null, imageUrl: null });
 
   await saveToken(userDto._id, tokens.refreshToken);
   return { ...tokens, user: userDto };

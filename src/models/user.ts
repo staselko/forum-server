@@ -14,6 +14,7 @@ const UserSchema = new Schema({
   posts: [{
     type: Schema.Types.ObjectId, ref: 'post',
   }],
+  imageUrl: { type: String },
 }, { timestamps: true });
 
 const User = mongoose.model('user', UserSchema);
