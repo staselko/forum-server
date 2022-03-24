@@ -1,14 +1,12 @@
-import { NextFunction } from 'express';
 /* eslint-disable no-unused-vars */
-import cookieParser from 'cookie-parser';
-import { cookie, validationResult } from 'express-validator';
-import { contextsKey } from 'express-validator/src/base';
+import { NextFunction } from 'express';
 import User from '../models/user';
 import Post from '../models/post';
 import Comment from '../models/comments';
 import {
-  userRegistration, activateAccount, loginUser, logoutUser, updateToken, checkIfUserExists,
+  userRegistration, activateAccount, loginUser, logoutUser, updateToken,
 } from '../service/user';
+import { IPost } from '../intefaces/postInterfaces';
 
 const ApiError = require('../exceptions/api-error');
 const UserDto = require('../dtos/user');
@@ -21,6 +19,7 @@ type ReqBody = {
     secondName: string,
     phone: string,
     username: string,
+    imageUrl: string,
   },
   params?: {
     userId?: string,
@@ -30,7 +29,7 @@ type ReqBody = {
 
 export const readUsers = async (req: any, res: any) => {
   try {
-    const { limit, startIndex } = res;
+    const { limit } = res;
 
     const user = await User.find()
       .limit(limit)
@@ -68,7 +67,6 @@ export const readTargetUser = async (req: any, res: any, next: NextFunction) => 
 export const editUser = async (req: ReqBody, res: any) => {
   try {
     const { userId: _id } = req.params;
-    const user = await User.findOneAndUpdate({ _id }, req.body);
     const updatedUser = await User.findOne({ _id }).populate('posts');
     const userDto = new UserDto(updatedUser);
 
@@ -120,7 +118,7 @@ export const login = async (req: any, res: any, next: any) => {
     const userData = await loginUser(email, password);
     res.cookie('refreshToken', userData.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true });
     return res.status(200).json(userData);
-  } catch (error: any) {
+  } catch (error) {
     next(error);
   }
 };
@@ -132,7 +130,7 @@ export const logout = async (req: any, res: any, next: any) => {
     res.clearCookie('refreshToken');
     return res.json(token);
   } catch (error) {
-    res.status(400).json({ error });
+    next(error);
   }
 };
 

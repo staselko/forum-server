@@ -77,6 +77,10 @@ export const activateAccount = async (activationLink: string) => {
 export const loginUser = async (email: string, password: string) => {
   const user = await User.findOne({ email })
     .populate('posts');
+  if (!email || !password) {
+    throw ApiError.BadRequest('All fields are requiered');
+  }
+
   if (!user) {
     throw ApiError.BadRequest(`Can't find user with ${email} email`);
   }

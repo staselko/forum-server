@@ -36,7 +36,6 @@ app.use('/posts', postRouter);
 app.use('/comments', commentRouter);
 app.use('/', authRouter);
 app.listen(PORT);
-app.use(errorMiddleware);
 mongoose.set('useFindAndModify', false);
 mongoose.connect(MONGODB, { useUnifiedTopology: true, useNewUrlParser: true })
   .then(() => console.log('\x1b[32m', 'Successfully connected to the database'))
@@ -45,3 +44,5 @@ mongoose.connect(MONGODB, { useUnifiedTopology: true, useNewUrlParser: true })
 app.get('/', async (req, res) => {
   res.send(`Server is working on port ${PORT}`);
 });
+
+app.use(errorMiddleware);
