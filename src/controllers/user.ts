@@ -67,6 +67,10 @@ export const readTargetUser = async (req: any, res: any, next: NextFunction) => 
 export const editUser = async (req: ReqBody, res: any) => {
   try {
     const { userId: _id } = req.params;
+    await User.findOneAndUpdate({ _id }, req.body);
+    await Post.find({ user: _id })
+      .populate('user');
+
     const updatedUser = await User.findOne({ _id }).populate('posts');
     const userDto = new UserDto(updatedUser);
 
