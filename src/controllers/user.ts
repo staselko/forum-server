@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import { NextFunction } from 'express';
 import User from '../models/user';
 import Post from '../models/post';
@@ -6,7 +5,6 @@ import Comment from '../models/comments';
 import {
   userRegistration, activateAccount, loginUser, logoutUser, updateToken,
 } from '../service/user';
-import { IPost } from '../intefaces/postInterfaces';
 
 const ApiError = require('../exceptions/api-error');
 const UserDto = require('../dtos/user');
@@ -34,12 +32,7 @@ export const readUsers = async (req: any, res: any) => {
     const user = await User.find()
       .limit(limit)
       .populate('posts')
-      .then((data: any) => {
-        if (!data.length) {
-          throw ApiError.BadRequest('No posts');
-        }
-        return data;
-      });
+      .then((data: any) => data);
 
     res.status(200).json(user);
   } catch (error) {
@@ -71,7 +64,27 @@ export const editUser = async (req: ReqBody, res: any) => {
     await Post.find({ user: _id })
       .populate('user');
 
-    const updatedUser = await User.findOne({ _id }).populate('posts');
+    const updatedUser = await User.findOne({ _id })
+      .populate('posts');
+
+    await Comment.find({ userId: _id })
+      .populate('userId')
+      .then((comment: any) => {
+        comment.forEach(async (item: any, index: any) => {
+          comment[index].firstName = updatedUser.firstName;
+          comment[index].secondName = updatedUser.secondName;
+          if (req.body.imageUrl) {
+            comment[index].imageUrl = updatedUser.imageUrl;
+          }
+          try {
+            await comment[index].save();
+          } catch (error: any) {
+            throw ApiError.BadRequest('Error while updating profile');
+          }
+        });
+        return comment;
+      });
+
     const userDto = new UserDto(updatedUser);
 
     res.status(200).json(userDto);
