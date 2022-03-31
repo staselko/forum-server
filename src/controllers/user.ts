@@ -5,6 +5,7 @@ import Comment from '../models/comments';
 import {
   userRegistration, activateAccount, loginUser, logoutUser, updateToken,
 } from '../service/user';
+import { IUser } from '../intefaces/userInterfaces';
 
 const ApiError = require('../exceptions/api-error');
 const UserDto = require('../dtos/user');
@@ -27,14 +28,26 @@ type ReqBody = {
 
 export const readUsers = async (req: any, res: any) => {
   try {
+    const { search } = req.query;
     const { limit } = res;
+    if (!search) {
+      const user = await User.find()
+        .limit(limit)
+        .populate('posts')
+        .then((data: any) => data);
 
-    const user = await User.find()
-      .limit(limit)
-      .populate('posts')
-      .then((data: any) => data);
+      res.status(200).json(user);
+    } else {
+      const users = await User.find();
+      users.map((user: IUser) => {
+        user.username = user.username.toLowerCase();
+        return user;
+      });
 
-    res.status(200).json(user);
+      const results = users.filter((user: IUser) => user.username.includes(search.toLowerCase()));
+
+      res.status(200).json(results);
+    }
   } catch (error) {
     res.status(400).json({ error });
   }
