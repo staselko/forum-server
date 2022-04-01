@@ -5,7 +5,6 @@ import Comment from '../models/comments';
 import {
   userRegistration, activateAccount, loginUser, logoutUser, updateToken,
 } from '../service/user';
-import { IUser } from '../intefaces/userInterfaces';
 
 const ApiError = require('../exceptions/api-error');
 const UserDto = require('../dtos/user');
@@ -38,15 +37,8 @@ export const readUsers = async (req: any, res: any) => {
 
       res.status(200).json(user);
     } else {
-      const users = await User.find();
-      users.map((user: IUser) => {
-        user.username = user.username.toLowerCase();
-        return user;
-      });
-
-      const results = users.filter((user: IUser) => user.username.includes(search.toLowerCase()));
-
-      res.status(200).json(results);
+      const users = await User.find({ username: { $regex: `${search}`, $options: 'i' } });
+      res.status(200).json(users);
     }
   } catch (error) {
     res.status(400).json({ error });
