@@ -171,8 +171,8 @@ export const deleteUser = async (req: ReqBody, res: any, next: any) => {
   try {
     const { userId: _id } = req.params;
     await User.deleteOne({ _id });
-    await Post.find({ userId: _id }).remove();
-    await Comment.find({ userId: _id }).remove();
+    await Post.find({ user: _id }).remove();
+    await Comment.findOneAndDelete({ userId: _id });
     const users = await User.find();
     return res.status(200).json(users);
   } catch (error) {
