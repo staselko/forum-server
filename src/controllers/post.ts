@@ -23,9 +23,6 @@ export const readPosts = async (req: any, res: any, next: NextFunction) => {
           });
         });
 
-        if (!data.length) {
-          throw ApiError.BadRequest('No posts');
-        }
         return data;
       });
     return res.status(200).json(posts);
