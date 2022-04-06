@@ -2,15 +2,14 @@ import { addComment } from '../service/comments';
 import Comment from '../models/comments';
 import { RequestComment } from '../intefaces/postInterfaces';
 import Post from '../models/post';
+import { IComment } from '../intefaces/commentInterface';
+import { dtoPost } from '../dtos/comment';
 
 const ApiError = require('../exceptions/api-error');
 
 export const readComments = async (req: any, res: any, next: any) => {
   try {
     const comment = await Comment.find();
-    if (!comment) {
-      throw ApiError.BadRequest('No comments');
-    }
     return res.status(200).json(comment);
   } catch (error) {
     next(error);
@@ -51,7 +50,23 @@ export const redactComment = async (req: RequestComment, res: any, next: any) =>
     changedComment.body = body;
     await changedComment.save();
     const { comments } = await Post.findById({ _id: postId })
-      .populate('comments');
+      .populate({
+        path: 'comments',
+        populate: {
+          path: 'userId',
+          model: 'user',
+        },
+      })
+      .then((data: any) => {
+        if (!data._id) {
+          throw ApiError.BadRequest('No such post');
+        }
+        data.comments.forEach((item: IComment, index: number) => {
+          item = dtoPost(item);
+          data.comments[index] = item;
+        });
+        return data;
+      });
     res.status(200).json(comments);
   } catch (error) {
     next(error);
@@ -66,7 +81,23 @@ export const deleteComment = async (req: RequestComment, res: any, next: any) =>
     }
     await Comment.deleteOne({ _id });
     const { comments } = await Post.findById({ _id: postId })
-      .populate('comments');
+      .populate({
+        path: 'comments',
+        populate: {
+          path: 'userId',
+          model: 'user',
+        },
+      })
+      .then((data: any) => {
+        if (!data._id) {
+          throw ApiError.BadRequest('No such post');
+        }
+        data.comments.forEach((item: IComment, index: number) => {
+          item = dtoPost(item);
+          data.comments[index] = item;
+        });
+        return data;
+      });
     return res.status(200).json(comments);
   } catch (error) {
     next(error);

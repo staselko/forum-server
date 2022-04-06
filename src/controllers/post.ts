@@ -15,6 +15,9 @@ export const readPosts = async (req: any, res: any, next: NextFunction) => {
     const posts = await Post.find().limit(limit).skip(startIndex)
       .populate('user comments')
       .then((data: any) => {
+        if (!data.length) {
+          return [];
+        }
         data.forEach((post: any) => {
           post.user = new UserDto(post.user);
           post.comments.forEach((item: IComment, index: number) => {
@@ -35,14 +38,13 @@ export const createPost = async (req: RequestPost, res: any, next: NextFunction)
   try {
     const post = new Post(req.body);
 
-    await post.save();
-
     const user = await User.findOne({ _id: req.body.user });
 
     if (!user.id) {
       throw ApiError.BadRequest('No such user');
     }
 
+    await post.save();
     user.posts.push(post._id);
     await user.save();
     return res.status(200).json(post);
@@ -54,9 +56,6 @@ export const createPost = async (req: RequestPost, res: any, next: NextFunction)
 export const getTargetPost = async (req: RequestPost, res: Response, next: NextFunction) => {
   try {
     const { postId } = req.params;
-    if (!(postId.length === 24)) {
-      throw ApiError.PageNotFound();
-    }
     const post = await getPost(postId);
 
     if (!post) {

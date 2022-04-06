@@ -28,7 +28,7 @@ type ReqBody = {
 export const readUsers = async (req: any, res: any) => {
   try {
     const { search } = req.query;
-    const { limit } = res;
+    const { limit, quantity } = res;
     if (!search) {
       const user = await User.find()
         .limit(limit)
@@ -36,9 +36,13 @@ export const readUsers = async (req: any, res: any) => {
         .then((data: any) => data);
 
       res.status(200).json(user);
-    } else {
-      const users = await User.find({ username: { $regex: `${search}`, $options: 'i' } });
+    } else if (search.length) {
+      const users = await User.find({ username: { $regex: `${search}`, $options: 'i' } })
+        .limit(quantity)
+        .then((data: any) => (data));
       res.status(200).json(users);
+    } else {
+      res.status(200);
     }
   } catch (error) {
     res.status(400).json({ error });
@@ -48,11 +52,9 @@ export const readUsers = async (req: any, res: any) => {
 export const readTargetUser = async (req: any, res: any, next: NextFunction) => {
   const { userId } = req.params;
   try {
-    if (!(userId.length === 24)) {
-      throw ApiError.PageNotFound();
-    }
     const user = await User.findOne({ _id: userId })
-      .populate('posts');
+      .populate('posts')
+      .catch(() => { throw ApiError.PageNotFound(); });
     if (!user) {
       throw ApiError.PageNotFound();
     }
@@ -172,7 +174,7 @@ export const deleteUser = async (req: ReqBody, res: any, next: any) => {
     const { userId: _id } = req.params;
     await User.deleteOne({ _id });
     await Post.find({ user: _id }).remove();
-    await Comment.findOneAndDelete({ userId: _id });
+    await Comment.find({ userId: _id }).remove();
     const users = await User.find();
     return res.status(200).json(users);
   } catch (error) {

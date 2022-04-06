@@ -5,4 +5,6 @@ export interface IUser {
   password: string | Buffer,
   phone: string,
   username: string,
+  imageUrl?: string,
+  _id?: string,
 }

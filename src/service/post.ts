@@ -8,7 +8,13 @@ const ApiError = require('../exceptions/api-error');
 
 export const getPost = async (postId: string) => {
   const targetPost = await Post.findById({ _id: postId })
-    .populate('user comments')
+    .populate({
+      path: 'user comments',
+      populate: {
+        path: 'userId',
+        model: 'user',
+      },
+    })
     .then((data: any) => {
       if (!data._id) {
         throw ApiError.BadRequest('No such post');
@@ -19,7 +25,8 @@ export const getPost = async (postId: string) => {
         data.comments[index] = item;
       });
       return data;
-    });
+    })
+    .catch(() => { throw ApiError.PageNotFound(); });
   return targetPost;
 };
 
