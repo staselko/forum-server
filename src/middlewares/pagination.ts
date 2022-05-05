@@ -9,8 +9,8 @@ export const paginatedResults = () => async (
   const limit = page * 10;
   const quantity = page * 5;
   try {
-    res.limit = limit;
-    res.quantity = quantity;
+    req.body.limit = limit;
+    req.body.quantity = quantity;
     next();
   } catch (e: any) {
     res.status(500).json({ message: e.message });

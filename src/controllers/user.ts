@@ -1,4 +1,4 @@
-import { NextFunction } from 'express';
+import { NextFunction, Response } from 'express';
 import User from '../models/user';
 import Post from '../models/post';
 import Comment from '../models/comments';
@@ -28,7 +28,8 @@ type ReqBody = {
 export const readUsers = async (req: any, res: any) => {
   try {
     const { search } = req.query;
-    const { limit, quantity } = res;
+    const { limit, quantity } = req.body;
+
     if (!search) {
       const user = await User.find()
         .limit(limit)
@@ -49,7 +50,7 @@ export const readUsers = async (req: any, res: any) => {
   }
 };
 
-export const readTargetUser = async (req: any, res: any, next: NextFunction) => {
+export const readTargetUser = async (req: any, res: Response, next: NextFunction) => {
   const { userId } = req.params;
   try {
     const user = await User.findOne({ _id: userId })
@@ -58,13 +59,14 @@ export const readTargetUser = async (req: any, res: any, next: NextFunction) => 
     if (!user) {
       throw ApiError.PageNotFound();
     }
+    res.send({ id: 6, name: 'Tom' });
     res.status(200).json(user);
   } catch (error) {
     next(error);
   }
 };
 
-export const editUser = async (req: ReqBody, res: any) => {
+export const editUser = async (req: ReqBody, res: Response) => {
   try {
     const { userId: _id } = req.params;
     await User.findOneAndUpdate({ _id }, req.body);
@@ -100,7 +102,7 @@ export const editUser = async (req: ReqBody, res: any) => {
   }
 };
 
-export const registration = async (req: ReqBody, res: any, next: any) => {
+export const registration = async (req: ReqBody, res: Response, next: NextFunction) => {
   try {
     const {
       email,
@@ -126,7 +128,7 @@ export const registration = async (req: ReqBody, res: any, next: any) => {
   }
 };
 
-export const activate = async (req: any, res: any, next: any) => {
+export const activate = async (req: any, res: Response, next: NextFunction) => {
   try {
     const activationLink = req.params.link;
     await activateAccount(activationLink);
@@ -136,7 +138,7 @@ export const activate = async (req: any, res: any, next: any) => {
   }
 };
 
-export const login = async (req: any, res: any, next: any) => {
+export const login = async (req: any, res: Response, next: NextFunction) => {
   try {
     const { email, password } = req.body;
     const userData = await loginUser(email, password);
@@ -147,7 +149,7 @@ export const login = async (req: any, res: any, next: any) => {
   }
 };
 
-export const logout = async (req: any, res: any, next: any) => {
+export const logout = async (req: any, res: Response, next: NextFunction) => {
   try {
     const { refreshToken } = req.cookies;
     const token = await logoutUser(refreshToken);
@@ -158,7 +160,7 @@ export const logout = async (req: any, res: any, next: any) => {
   }
 };
 
-export const refresh = async (req: any, res: any, next: any) => {
+export const refresh = async (req: any, res: Response, next: NextFunction) => {
   try {
     const { refreshToken } = req.cookies;
     const userData = await updateToken(refreshToken);
@@ -169,7 +171,7 @@ export const refresh = async (req: any, res: any, next: any) => {
   }
 };
 
-export const deleteUser = async (req: ReqBody, res: any, next: any) => {
+export const deleteUser = async (req: ReqBody, res: Response, next: NextFunction) => {
   try {
     const { userId: _id } = req.params;
     await User.deleteOne({ _id });
@@ -182,7 +184,7 @@ export const deleteUser = async (req: ReqBody, res: any, next: any) => {
   }
 };
 
-export const readUsersTargetPage = async (req: any, res: any, next: any) => {
+export const readUsersTargetPage = async (req: any, res: Response, next: NextFunction) => {
   try {
     const step = 10;
     const { usersPaginationNum } = req.params;
